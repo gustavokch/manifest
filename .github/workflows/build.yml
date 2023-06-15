@@ -32,9 +32,9 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
-          apt update
-          apt upgrade -y
-          apt install -y build-essential git wget ccache 7z
+          sudo apt update
+          sudo apt upgrade -y
+          sudo apt install -y build-essential git wget ccache 7z
           wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
           unzip platform-tools-latest-linux.zip -d ~
 
@@ -74,7 +74,7 @@ jobs:
     env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
         run: |
-          sudo apt install debhelper -y
+          sudo sudo apt install debhelper -y
           export RELEASE_NAME="PixelExperience thirteen-plus RM6785"
           export RELEASE_TITLE="PixelExperience thirteen-plus RM6785"
           export RELEASE=$(($RELEASE_TITE+$GITHUB_RUN_NUMBER))
