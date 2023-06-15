@@ -25,10 +25,8 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Runs a set of commands using the runners shell
-      - name: build
+      - name: deps
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
           sudo apt update
           sudo apt upgrade -y
           sudo apt install -y build-essential git wget ccache p7zip
@@ -52,7 +50,7 @@ jobs:
 
           git config --global user.email "ghlsem@gmail.com"
           git config --global user.name "Gustavo Mendes"
-
+       - name: build
           cd ~/android/pe
           repo init -u https://github.com/gustavokch/manifest -b thirteen-plus
 
@@ -71,7 +69,7 @@ jobs:
     env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
         run: |
-          sudo sudo apt install debhelper -y
+          sudo apt install debhelper -y
           export RELEASE_NAME="PixelExperience thirteen-plus RM6785"
           export RELEASE_TITLE="PixelExperience thirteen-plus RM6785"
           export RELEASE=$(($RELEASE_TITE+$GITHUB_RUN_NUMBER))
