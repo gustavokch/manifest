@@ -25,7 +25,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     - name: deps
-        run: |
+      run: |
           sudo apt update
           sudo apt upgrade -y
           sudo apt install -y build-essential git wget ccache p7zip
@@ -44,10 +44,10 @@ jobs:
           fi
           git config --global user.email "ghlsem@gmail.com"
           git config --global user.name "Gustavo Mendes"
-     - name: build
-       env:
+    - name: build
+      env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
-       run: | 
+      run: | 
           cd ~/android/pe
           repo init -u https://github.com/gustavokch/manifest -b thirteen-plus
 
@@ -63,10 +63,10 @@ jobs:
 
           croot
           mka bacon -j$(nproc --all)
-     - name: release
-       env:
+    - name: release
+      env:
          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
-        run: |
+      run: |
           sudo apt install debhelper -y
           export RELEASE_NAME="PixelExperience thirteen-plus RM6785"
           export RELEASE_TITLE="PixelExperience thirteen-plus RM6785"
