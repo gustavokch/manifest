@@ -1,0 +1,84 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "thirteen" branch
+  push:
+    branches: [ "thirteen-plus" ]
+  pull_request:
+    branches: [ "thirteen-plus" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+env:
+    CCACHE_DIR: $RUNNER_TEMP/ccache
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a set of commands using the runners shell
+      - name: build
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+          apt update
+          apt upgrade -y
+          apt install -y build-essential git wget ccache 7z
+          wget https://dl.google.com/android/repository/platform-tools-latest-linux.zip
+          unzip platform-tools-latest-linux.zip -d ~
+
+          cd ~/
+          git clone https://github.com/akhilnarang/scripts
+          cd scripts
+          ./setup/android_build_env.sh
+
+          mkdir -p ~/bin
+          mkdir -p ~/android/pe
+
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+
+          if [ -d "$HOME/bin" ] ; then
+              PATH="$HOME/bin:$PATH"
+          fi
+
+          git config --global user.email "ghlsem@gmail.com"
+          git config --global user.name "Gustavo Mendes"
+
+          cd ~/android/pe
+          repo init -u https://github.com/gustavokch/manifest -b thirteen-plus
+
+          repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+
+          source build/envsetup.sh
+          lunch aosp_RM6785-userdebug
+
+          export USE_CCACHE=1
+          export CCACHE_EXEC=/usr/bin/ccache
+          ccache -M 25G
+          ccache -o compression=true
+
+          croot
+          mka bacon -j$(nproc --all)
+    env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+        run: |
+          sudo apt install debhelper -y
+          export RELEASE_NAME="PixelExperience thirteen-plus RM6785"
+          export RELEASE_TITLE="PixelExperience thirteen-plus RM6785"
+          export RELEASE=$(($RELEASE_TITE+$GITHUB_RUN_NUMBER))
+          export DESCRIPTION="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          cd $OUT
+          7z a -mmt$(nproc --all) out.zip *
+          gh release create --title $RELEASE_TITLE --generate-notes -R https://github.com/gustavokch/manifest $RELEASE out.zip
